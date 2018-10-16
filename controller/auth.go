@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/sysu-go-online/public-service/tools"
 	"github.com/sysu-go-online/user-service/model"
 )
 
@@ -13,7 +14,7 @@ import (
 func LogInHandler(w http.ResponseWriter, r *http.Request) error {
 	r.ParseForm()
 	token := r.Header.Get("Authorization")
-	if valid, err := CheckJWT(token); err == nil && valid {
+	if valid, err := tools.CheckJWT(token, AuthRedisClient); err == nil && valid {
 		w.Header().Add("Authorization", token)
 		w.WriteHeader(200)
 		return nil
@@ -30,7 +31,7 @@ func LogInHandler(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(400)
 		return nil
 	}
-	if ok := CheckUsername(user.Username); !ok {
+	if ok := tools.CheckUsername(user.Username); !ok {
 		w.WriteHeader(400)
 		return nil
 	}
@@ -47,13 +48,13 @@ func LogInHandler(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(400)
 		return nil
 	}
-	if !CompasePassword(user.Password, user.User.Password) {
+	if !tools.CompasePassword(user.Password, user.User.Password) {
 		w.WriteHeader(400)
 		return nil
 	}
 
 	// Generate token for user
-	if token, err := GenerateJWT(user.User.Username); err != nil {
+	if token, err := tools.GenerateJWT(user.User.Username); err != nil {
 		return err
 	} else {
 		w.Header().Add("Authorization", token)
@@ -64,7 +65,7 @@ func LogInHandler(w http.ResponseWriter, r *http.Request) error {
 // LogOutHandler handler logout event
 func LogOutHandler(w http.ResponseWriter, r *http.Request) error {
 	token := r.Header.Get("Authorization")
-	if valid, err := ValidateToken(token); err != nil {
+	if valid, err := tools.ValidateToken(token); err != nil {
 		fmt.Println(err)
 		w.WriteHeader(400)
 		return nil
