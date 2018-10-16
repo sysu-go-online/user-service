@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/sysu-go-online/public-service/tools"
-	"github.com/sysu-go-online/service-end/model"
+	"github.com/sysu-go-online/user-service/model"
 )
 
 // UserController is controller for user
