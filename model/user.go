@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/go-xorm/xorm"
+	"github.com/sysu-go-online/public-service/tools"
+	"github.com/sysu-go-online/public-service/types"
 )
 
 // User correspond user table in mysql
@@ -36,27 +39,7 @@ func (u *User) Insert(session *xorm.Session) (int, error) {
 // AddUserHome create user home directory
 func (u *User) AddUserHome() error {
 	userHome := path.Join("/home", u.Username)
-	userGit := path.Join(userHome, "git")
-	err := os.MkdirAll(userHome, os.ModeDir)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(userGit, os.ModeDir)
-	if err != nil {
-		return err
-	}
-	// add gitconfig and .gitconfig file
-	f, err := os.OpenFile(path.Join(userGit, "gitconfig"), os.O_RDONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return err
-	}
-	f.Close()
-	f, err = os.OpenFile(path.Join(userGit, ".gitconfig"), os.O_RDONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return err
-	}
-	f.Close()
-	return nil
+	return os.MkdirAll(userHome, os.ModeDir)
 }
 
 // GetWithEmail get user with given email
@@ -75,4 +58,26 @@ func (u *User) GetWithUsername(session *xorm.Session) (bool, error) {
 func (u *User) GetWithUserID(session *xorm.Session) (bool, error) {
 	id := u.ID
 	return session.Where("id = ?", id).Get(u)
+}
+
+// GetFileStructure read file structure and return it
+func GetFileStructure(username string) (*types.FileStructure, error) {
+	// Get absolute path
+	var err error
+	absPath := filepath.Join("/", username)
+
+	// Recurisively get file structure
+	s, err := tools.Dfs(absPath, 0)
+	if err != nil {
+		return nil, err
+	}
+	// Add root content
+	root := types.FileStructure{
+		Name:       "",
+		Type:       "dir",
+		Children:   s,
+		Root:       true,
+		IsSelected: true,
+	}
+	return &root, nil
 }

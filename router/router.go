@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/rs/cors"
+	"github.com/sysu-go-online/public-service/types"
 	"github.com/sysu-go-online/user-service/controller"
 	"github.com/urfave/negroni"
 )
@@ -14,9 +15,10 @@ var upgrader = websocket.Upgrader{}
 func GetServer() *negroni.Negroni {
 	r := mux.NewRouter()
 
-	r.Handle("", controller.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
-	r.Handle("/", controller.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
-	r.Handle("/{username}", controller.ErrorHandler(controller.GetUserMessageHandler)).Methods("GET")
+	r.Handle("", types.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
+	r.Handle("/", types.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
+	r.Handle("/{username}", types.ErrorHandler(controller.GetUserMessageHandler)).Methods("GET")
+	r.Handle("/{username}/files", types.ErrorHandler(controller.GetUserHomeStructureHandler)).Methods("GET")
 
 	// Use classic server and return it
 	handler := cors.Default().Handler(r)

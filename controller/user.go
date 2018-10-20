@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/sysu-go-online/public-service/tools"
-	"github.com/sysu-go-online/service-end/model"
+	"github.com/sysu-go-online/user-service/model"
 )
 
 // UserController is controller for user
@@ -100,5 +100,39 @@ func GetUserMessageHandler(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	w.Write(byteUM)
+	return nil
+}
+
+// GetUserHomeStructureHandler returns home structure
+func GetUserHomeStructureHandler(w http.ResponseWriter, r *http.Request) error {
+	// get username from jwt
+	ok, username := tools.GetUserNameFromToken(r.Header.Get("Authorization"), AuthRedisClient)
+	if !ok {
+		w.WriteHeader(401)
+		return nil
+	}
+
+	// Get project information
+	session := MysqlEngine.NewSession()
+	u := model.User{Username: username}
+	ok, err := u.GetWithUsername(session)
+	if !ok {
+		w.WriteHeader(400)
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	// Get file structure
+	structure, err := model.GetFileStructure(username)
+	if err != nil {
+		return err
+	}
+	ret, err := json.Marshal(structure)
+	if err != nil {
+		return err
+	}
+	w.Write(ret)
 	return nil
 }
