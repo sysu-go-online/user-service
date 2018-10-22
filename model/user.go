@@ -19,6 +19,7 @@ type User struct {
 	Email      string     `xorm:"notnull unique"`
 	Password   string     `xorm:"notnull"`
 	CreateTime *time.Time `xorm:"created"`
+	Language   int
 }
 
 // TableName defines table name

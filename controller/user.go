@@ -14,14 +14,16 @@ import (
 // UserController is controller for user
 type UserController struct {
 	model.User
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Email           string `json:"email"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	DefaultLanguage int    `json:"defaultLanguage"`
 }
 
 // UserMessage stores user message
 type UserMessage struct {
-	Email string `json:"email"`
+	Email    string `json:"email"`
+	Language int    `json:"language"`
 }
 
 // CreateUserHandler handles user sign up
@@ -51,6 +53,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) error {
 	user.User.Password = pass
 	user.User.Username = user.Username
 	user.Username = tools.GenerateUserName()
+	user.User.Language = user.DefaultLanguage
 
 	// create session to add a user
 	session := MysqlEngine.NewSession()
@@ -59,6 +62,7 @@ func CreateUserHandler(w http.ResponseWriter, r *http.Request) error {
 		session.Rollback()
 		return err
 	}
+	// add home directory
 	err = user.User.AddUserHome()
 	if err != nil {
 		session.Rollback()
@@ -94,7 +98,7 @@ func GetUserMessageHandler(w http.ResponseWriter, r *http.Request) error {
 		w.WriteHeader(204)
 		return nil
 	}
-	um := UserMessage{u.User.Email}
+	um := UserMessage{u.User.Email, u.User.Language}
 	byteUM, err := json.Marshal(um)
 	if err != nil {
 		return err
