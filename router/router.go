@@ -15,10 +15,9 @@ var upgrader = websocket.Upgrader{}
 func GetServer() *negroni.Negroni {
 	r := mux.NewRouter()
 
-	r.Handle("", types.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
-	r.Handle("/", types.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
-	r.Handle("/{username}", types.ErrorHandler(controller.GetUserMessageHandler)).Methods("GET")
-	r.Handle("/{username}/files", types.ErrorHandler(controller.GetUserHomeStructureHandler)).Methods("GET")
+	r.Handle("/users", types.ErrorHandler(controller.CreateUserHandler)).Methods("POST")
+	r.Handle("/users/{username}", types.ErrorHandler(controller.GetUserMessageHandler)).Methods("GET")
+	r.Handle("/users/{username}/files", types.ErrorHandler(controller.GetUserHomeStructureHandler)).Methods("GET")
 
 	// Use classic server and return it
 	handler := cors.Default().Handler(r)
