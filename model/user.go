@@ -39,8 +39,12 @@ func (u *User) Insert(session *xorm.Session) (int, error) {
 
 // AddUserHome create user home directory
 func (u *User) AddUserHome() error {
-	userHome := path.Join("/home", u.Username)
-	return os.MkdirAll(userHome, os.ModeDir)
+	userProjectHome := path.Join("/home", u.Username, "projects")
+	if err := os.MkdirAll(userProjectHome, os.ModeDir); err != nil {
+		return err
+	}
+	userInfoHome := path.Join("/home", u.Username, ".info")
+	return os.MkdirAll(userInfoHome, os.ModeDir)
 }
 
 // GetWithEmail get user with given email
@@ -65,7 +69,7 @@ func (u *User) GetWithUserID(session *xorm.Session) (bool, error) {
 func GetFileStructure(username string) (*types.FileStructure, error) {
 	// Get absolute path
 	var err error
-	absPath := filepath.Join("/", username)
+	absPath := filepath.Join("/", username, "projects")
 
 	// Recurisively get file structure
 	s, err := tools.Dfs(absPath, 0)
