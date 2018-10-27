@@ -68,7 +68,7 @@ func (u *User) GetWithUserID(session *xorm.Session) (bool, error) {
 func GetFileStructure(username string) (*types.FileStructure, error) {
 	// Get absolute path
 	var err error
-	absPath := filepath.Join("/", username, "projects")
+	absPath := filepath.Join("/home", username, "projects")
 
 	// Recurisively get file structure
 	s, err := tools.Dfs(absPath, 0)
