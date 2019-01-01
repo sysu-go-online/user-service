@@ -80,8 +80,6 @@ func GetFileStructure(username string) (*types.FileStructure, error) {
 		Name:       "",
 		Type:       "dir",
 		Children:   s,
-		Root:       true,
-		IsSelected: true,
 	}
 	return &root, nil
 }
